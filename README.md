@@ -74,3 +74,6 @@ If you wish them to start after reboot, enable the triggers:
     $ systemctl enable gmail-relay.timer
     $ systemctl enable gmail.relay.path
 
+# Install
+## Gentoo
+ebuilds are provided at https://github.com/asssaf/portage/tree/master/mail-mta/gmail-relay
