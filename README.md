@@ -1,5 +1,13 @@
 # gmail-relay
-Simple MTA that uses gmail API using a client OAuth token to send mail
+Simple MTA that uses gmail API using a client OAuth token to send mail. 
+gmail-relay.py is a python script based on [google-api-python-client](https://github.com/google/google-api-python-client
+) to send a message as a sendmail replacement.
+
+gmail-relay.py doesn't do queueing so if you don't want to lose messages you can use a queueing sendmail (such as
+nullmailer's nullmailer-inject), then use the provided gmail-relay-process-queue script to process the queue dir.
+
+You can run gmail-relay-process-queue periodically or through systemd triggers to make sure that queued
+mail is retried and sent once the failure is resolved.
 
 # Why?
 This allows you to use a token instead of writing down your google account password in a config file.
@@ -20,11 +28,13 @@ and place it in a user accessible directory.
 By default gmail-relay.py will look in `~/.gmail-relay/client_secret.json`, but if you use a different 
 directory you can pass the --config=myconfigdir argument.
 
+gmail-relay.py depends on `google-api-python-client` so first make sure you have that installed.
+
 Then, run:
 
     $ gmail-relay.py --auth --config=~/.gmail-relay
 
-You can now send messages by passing them to gmail-relay.py through stdin
+You can now send RFC 2822 compliant messages by passing them to gmail-relay.py through stdin
 
     $ cat message | gmail-relay.py --config=~/.gmail-relay
     
@@ -39,6 +49,7 @@ If it doesn't find an existing credentials file under `CONFIG_DIR/credentials.js
 authorize through the browser. Authorization requires `client_secret.json` to be present in `CONFIG_DIR`.
 
 Pass `--auth` to run autohrization only and exit 
+
 Pass `--config=myconfigdir` to use a custom config directory instead of the default `~/.gmail-relay`
 
 ### gmail-relay-process-queue
