@@ -23,7 +23,7 @@ In order to use gmail-relay the Gmail API needs to be enabled and authorized.
 See https://developers.google.com/gmail/api/quickstart/python for instructions.
 
 Authorization happens through the browser so (usually) needs to be run as a normal user.
-Once you create an OAuth client ID and download the JSON, rename it client_secret.json
+Once you create an OAuth client ID and download the JSON, rename it `client_secret.json`
 and place it in a user accessible directory. 
 
 By default gmail-relay.py will look in `~/.gmail-relay/client_secret.json`, but if you use a different 
@@ -40,7 +40,7 @@ You can now send RFC 2822 compliant messages by passing them to gmail-relay.py t
     $ cat message | gmail-relay.py --config=~/.gmail-relay
     
 If you wish to have gmail-relay run as a system service (e.g. by systemd) you'll need to
-copy the generated `credentials.json` file to `/etc/gmail-relay`/ (and chmod it 600).
+copy the generated `credentials.json` file to `/etc/gmail-relay/` (and chmod it 600).
 
 ### gmail-relay.py
 Sends a message passed to it in stdin.
