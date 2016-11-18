@@ -1,5 +1,6 @@
 # gmail-relay
 Simple MTA that uses gmail API using a client OAuth token to send mail. 
+
 gmail-relay.py is a python script based on [google-api-python-client](https://github.com/google/google-api-python-client
 ) to send a message as a sendmail replacement.
 
