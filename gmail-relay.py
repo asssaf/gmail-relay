@@ -15,14 +15,18 @@ import sys
 
 try:
     import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+    parser = argparse.ArgumentParser(parents=[tools.argparser])
+    parser.add_argument("--auth", help="Perform auth and exit", action="store_true")
+    parser.add_argument("--config", help="Directory to read and write config files from",
+                        type=str, default="/etc/gmail-relay")
+    flags = parser.parse_args()
 except ImportError:
     flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-relay.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.send'
-CONF_PATH = '/etc/gmail-relay'
+CONF_PATH = flags.config
 CLIENT_SECRET_FILE = os.path.join(CONF_PATH, 'client_secret.json')
 CREDENTIALS_PATH= os.path.join(CONF_PATH, 'credentials.json')
 APPLICATION_NAME = 'Gmail Relay'
@@ -98,6 +102,11 @@ def main():
     """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
+
+    if flags.auth:
+        # auth only requested so exiting
+        sys.exit(0)
+
     service = discovery.build('gmail', 'v1', http=http)
 
     # as a sendmail replacement - create message from standard input
