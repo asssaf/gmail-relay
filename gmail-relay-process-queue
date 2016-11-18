@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# process queued mail items in a given directory by sending them via gmail-relay.py
+
+#/ Usage: gmail-relay-process-queue <queue_directory>
+#/
+#/ <queue_directory> is the path to the mail queue to look for message in (e.g. /var/nullmailer/queue)
+#/
+function usage() {
+  grep "^#/" < "$0" | cut -c4-
+}
+
+# display usage (by self grepping) in case --help is specified on the command line
+expr -- "$*" : ".*--help" >/dev/null && {
+  usage
+  exit 0
+}
+
+if [ -z "$1" ]
+then
+  usage
+  exit 1
+fi
+
+QUEUE="$1"
+SENDER="$(dirname $0)/gmail-relay.py"
+
+function die() {
+  >&2 echo "$2"
+  exit $1
+}
+
+[ -r $QUEUE ] || die 1 "Can't read $QUEUE"
+
+for f in "$QUEUE"/*
+do
+  if [ -e "$f" ]
+  then
+    # remove 3 lines from the input to get to the beginning of the message
+    tail -n +4 "$f" | $SENDER
+    res=$?
+
+    [ "$res" -eq "0" ] || die 2 "Failure while sending - aborting"
+    rm "$f" || die 3 "Failed to remove sent message - expect duplicates"
+  fi
+done

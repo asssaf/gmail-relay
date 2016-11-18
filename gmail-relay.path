@@ -1,0 +1,5 @@
+[Path]
+PathExistsGlob=/var/nullmailer/queue/*
+
+[Install]
+WantedBy=multi-user.target

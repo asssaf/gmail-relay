@@ -1,0 +1,10 @@
+[Unit]
+Description=Send queued messages using gmail-relay
+#OnFailure=status-email-user@%n.service
+ConditionFileNotEmpty=/root/.credentials/gmail-relay.json
+
+[Service]
+Nice=19
+IOSchedulingClass=2
+IOSchedulingPriority=7
+ExecStart=/usr/bin/gmail-relay-process-queue /var/nullmailer/queue
