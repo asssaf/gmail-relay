@@ -1,7 +1,7 @@
 [Unit]
 Description=Send queued messages using gmail-relay
 #OnFailure=status-email-user@%n.service
-ConditionFileNotEmpty=/root/.credentials/gmail-relay.json
+ConditionFileNotEmpty=/etc/gmail-relay/credentials.json
 
 [Service]
 Nice=19

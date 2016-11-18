@@ -22,7 +22,9 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-relay.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.send'
-CLIENT_SECRET_FILE = 'client_secret.json'
+CONF_PATH = '/etc/gmail-relay'
+CLIENT_SECRET_FILE = os.path.join(CONF_PATH, 'client_secret.json')
+CREDENTIALS_PATH= os.path.join(CONF_PATH, 'credentials.json')
 APPLICATION_NAME = 'Gmail Relay'
 
 
@@ -35,14 +37,7 @@ def get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'gmail-relay.json')
-
-    store = Storage(credential_path)
+    store = Storage(CREDENTIALS_PATH)
     credentials = store.get()
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
@@ -51,7 +46,7 @@ def get_credentials():
             credentials = tools.run_flow(flow, store, flags)
         else: # Needed only for compatibility with Python 2.6
             credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
+        print('Storing credentials to ' + CREDENTIALS_PATH)
     return credentials
 
 
