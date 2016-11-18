@@ -70,6 +70,7 @@ previous send.
     $ systemctl start gmail-relay.service
     
 If you wish them to start after reboot, enable the triggers:
+
     $ systemctl enable gmail-relay.timer
     $ systemctl enable gmail.relay.path
 
