@@ -18,7 +18,7 @@ try:
     parser = argparse.ArgumentParser(parents=[tools.argparser])
     parser.add_argument("--auth", help="Perform auth and exit", action="store_true")
     parser.add_argument("--config", help="Directory to read and write config files from",
-                        type=str, default="/etc/gmail-relay")
+                        type=str, default=os.path.join(os.path.expanduser('~'), ".gmail-relay"))
     flags = parser.parse_args()
 except ImportError:
     flags = None
@@ -26,9 +26,8 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-relay.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.send'
-CONF_PATH = flags.config
-CLIENT_SECRET_FILE = os.path.join(CONF_PATH, 'client_secret.json')
-CREDENTIALS_PATH= os.path.join(CONF_PATH, 'credentials.json')
+CLIENT_SECRET_FILE = os.path.join(flags.config, 'client_secret.json')
+CREDENTIALS_PATH= os.path.join(flags.config, 'credentials.json')
 APPLICATION_NAME = 'Gmail Relay'
 
 
@@ -41,6 +40,9 @@ def get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
+    if not os.path.exists(flags.config):
+        os.makedirs(flags.config)
+
     store = Storage(CREDENTIALS_PATH)
     credentials = store.get()
     if not credentials or credentials.invalid:

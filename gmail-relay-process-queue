@@ -22,7 +22,7 @@ then
 fi
 
 QUEUE="$1"
-SENDER="$(dirname $0)/gmail-relay.py"
+SENDER="$(dirname $0)/gmail-relay.py --config=/etc/gmail-relay"
 
 function die() {
   >&2 echo "$2"
