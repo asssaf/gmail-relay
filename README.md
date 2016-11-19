@@ -1,5 +1,5 @@
 # gmail-relay
-Simple MTA that uses gmail API using a client OAuth token to send mail. 
+Simple MTA that uses gmail API using a client OAuth token to send mail.
 
 gmail-relay.py is a python script based on [google-api-python-client](https://github.com/google/google-api-python-client
 ) to send a message as a sendmail replacement.
@@ -22,34 +22,48 @@ that are not needed anymore without affecting the rest of the machines.
 In order to use gmail-relay the Gmail API needs to be enabled and authorized.
 See https://developers.google.com/gmail/api/quickstart/python for instructions.
 
+Also, gmail-relay.py depends on `google-api-python-client` so first make sure you have that installed.
+
+## OAuth client ID
 Authorization happens through the browser so (usually) needs to be run as a normal user.
 Once you create an OAuth client ID and download the JSON, rename it `client_secret.json`
-and place it in a user accessible directory. 
+and place it in a user accessible directory.
 
-By default gmail-relay.py will look in `~/.gmail-relay/client_secret.json`, but if you use a different 
-directory you can pass the --config=myconfigdir argument.
-
-gmail-relay.py depends on `google-api-python-client` so first make sure you have that installed.
+By default gmail-relay.py will look in `~/.gmail-relay/client_secret.json`, but if you use a different
+directory you can pass the --user_config_dir=myconfigdir argument.
 
 Then, run:
 
-    $ gmail-relay.py --auth --config=~/.gmail-relay
+    $ gmail-relay.py --auth --user_config_dir=~/.gmail-relay
 
 You can now send RFC 2822 compliant messages by passing them to gmail-relay.py through stdin
 
-    $ cat message | gmail-relay.py --config=~/.gmail-relay
-    
+    $ cat message | gmail-relay.py --user_config_dir=~/.gmail-relay
+
 If you wish to have gmail-relay run as a system service (e.g. by systemd) you'll need to
 copy the generated `credentials.json` file to `/etc/gmail-relay/` (and chmod it 600).
+
+## Using a service account with Domain Wide Delegation
+A service acount can be used to impersonate a user (send email on it's behalf) with DwD (Domain wide
+delegation). This is great when you want to avoid browser based authorization.
+
+* Create a service account
+* Enable DwD on the service account
+* Create a client ID for the service account
+* Download and store the JSON for the service account
+
+You should now be able to send email as `my_email@gmail.com` by running:
+
+    $ gmail-relay.py --service_user=my_email@gmail.com --service_config=/path/to/service.json
 
 ### gmail-relay.py
 Sends a message passed to it in stdin.
 gmail-relay.py doesn't queue. For queuing you can use something like `gmail-relay-process-queue` (see below)
 
-If it doesn't find an existing credentials file under `CONFIG_DIR/credentials.json`, it will attempt to 
+If it doesn't find an existing credentials file under `CONFIG_DIR/credentials.json`, it will attempt to
 authorize through the browser. Authorization requires `client_secret.json` to be present in `CONFIG_DIR`.
 
-Pass `--auth` to run autohrization only and exit 
+Pass `--auth` to run autohrization only and exit
 
 Pass `--config=myconfigdir` to use a custom config directory instead of the default `~/.gmail-relay`
 
@@ -61,14 +75,14 @@ It expects the credentials.json for gmail-relay.py to be under `/etc/gmail-relay
     $ gmail-relay-process-queue /var/nullmailer/queue
 
 ### systemd
-A timer and path trigger are provided for systemd. This path trigger will execute `gmail-relay-process-queue` 
+A timer and path trigger are provided for systemd. This path trigger will execute `gmail-relay-process-queue`
 immediately when a new mail is queued, while the timer executes it periodically in case of a failure in a
 previous send.
 
     $ systemctl start gmail-relay.timer
     $ systemctl start gmail-relay.path
     $ systemctl start gmail-relay.service
-    
+
 If you wish them to start after reboot, enable the triggers:
 
     $ systemctl enable gmail-relay.timer
