@@ -9,6 +9,7 @@ from apiclient import errors
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+from oauth2client.service_account import ServiceAccountCredentials
 from email.MIMEText import MIMEText
 import base64
 import sys
@@ -17,8 +18,11 @@ try:
     import argparse
     parser = argparse.ArgumentParser(parents=[tools.argparser])
     parser.add_argument("--auth", help="Perform auth and exit", action="store_true")
-    parser.add_argument("--config", help="Directory to read and write config files from",
+    parser.add_argument("--user_config_dir", help="Directory to read and write config files from",
                         type=str, default=os.path.join(os.path.expanduser('~'), ".gmail-relay"))
+    parser.add_argument("--service_config", help="Service account json", type=str)
+    parser.add_argument("--service_user", help="User account to send email as when using a service account",
+                        type=str)
     flags = parser.parse_args()
 except ImportError:
     flags = None
@@ -26,12 +30,12 @@ except ImportError:
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-relay.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.send'
-CLIENT_SECRET_FILE = os.path.join(flags.config, 'client_secret.json')
-CREDENTIALS_PATH= os.path.join(flags.config, 'credentials.json')
+CLIENT_SECRET_FILE = os.path.join(flags.user_config_dir, 'client_secret.json')
+CREDENTIALS_PATH= os.path.join(flags.user_config_dir, 'credentials.json')
 APPLICATION_NAME = 'Gmail Relay'
 
 
-def get_credentials():
+def get_user_credentials():
     """Gets valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
@@ -40,8 +44,8 @@ def get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
-    if not os.path.exists(flags.config):
-        os.makedirs(flags.config)
+    if not os.path.exists(flags.user_config_dir):
+        os.makedirs(flags.user_config_dir)
 
     store = Storage(CREDENTIALS_PATH)
     credentials = store.get()
@@ -54,6 +58,14 @@ def get_credentials():
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + CREDENTIALS_PATH)
     return credentials
+
+
+def get_service_credentials():
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        flags.service_config, scopes=SCOPES)
+
+    delegated_credentials = credentials.create_delegated(flags.service_user)
+    return delegated_credentials
 
 
 def send_message(service, user_id, message):
@@ -77,32 +89,23 @@ def send_message(service, user_id, message):
     print('An error occurred: %s' % error)
 
 
-def create_message(sender, to, subject, message_text):
-  """Create a message for an email.
-
-  Args:
-    sender: Email address of the sender.
-    to: Email address of the receiver.
-    subject: The subject of the email message.
-    message_text: The text of the email message.
-
-  Returns:
-    An object containing a base64url encoded email object.
-  """
-  message = MIMEText(message_text)
-  message['to'] = to
-  message['from'] = sender
-  message['subject'] = subject
-  return {'raw': base64.urlsafe_b64encode(message.as_string())}
-
-
 def main():
-    """Shows basic usage of the Gmail API.
+    if flags.service_config:
+        if flags.service_user:
+            print("Using a service account")
+            credentials = get_service_credentials()
 
-    Creates a Gmail API service object and outputs a list of label names
-    of the user's Gmail account.
-    """
-    credentials = get_credentials()
+        else:
+            print("--service_config specified without --service_user")
+
+    elif flags.service_user:
+        print("--service_user specified without --service_config")
+        sys.exit(1)
+
+    else:
+        print("Using a user account")
+        credentials = get_user_credentials()
+
     http = credentials.authorize(httplib2.Http())
 
     if flags.auth:
