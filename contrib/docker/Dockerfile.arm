@@ -1,7 +1,7 @@
 FROM arm32v6/alpine
 
-RUN apk --no-cache add py-pip
-RUN pip install google-api-python-client
+RUN apk --no-cache add python3
+RUN pip3 install google-api-python-client oauth2client
 
 ADD gmail-relay.py /
 ADD create-message.py /

@@ -1,6 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from __future__ import print_function
 import httplib2
 import os
 
@@ -9,7 +8,6 @@ from apiclient import errors
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-from email.MIMEText import MIMEText
 import base64
 import sys
 
@@ -73,7 +71,7 @@ def send_message(service, user_id, message):
                .execute())
     print('Message Id: %s' % message['id'])
     return message
-  except errors.HttpError, error:
+  except errors.HttpError as error:
     print('An error occurred: %s' % error)
 
 
@@ -94,7 +92,7 @@ def main():
 
     # as a sendmail replacement - create message from standard input
     m = sys.stdin.read()
-    message = {'raw': base64.urlsafe_b64encode(m)}
+    message = {'raw': base64.urlsafe_b64encode(m.encode("utf-8")).decode("utf-8")}
     sent = send_message(service, "me", message)
     if not sent:
         sys.exit(1)
