@@ -1,0 +1,11 @@
+FROM arm32v6/alpine
+
+# a static-user qemu binary that allows running the container on x86
+# (the binary is not included in this git repository, build or download your own)
+COPY qemu-arm /usr/bin
+
+RUN apk --no-cache add python3
+RUN pip3 install google-api-python-client oauth2client
+
+ADD gmail-relay.py /
+ADD create-message.py /
