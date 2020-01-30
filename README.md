@@ -29,6 +29,8 @@ and place it in a user accessible directory.
 By default gmail-relay.py will look in `~/.gmail-relay/client_secret.json`, but if you use a different
 directory you can pass the --config=myconfigdir argument.
 
+If you aren't running on a system with a browser, pass `--noauth_local_webserver`.
+
 gmail-relay.py depends on `google-api-python-client` and `oauth2client`, so run `pip3 install -r requirements.txt` to make sure you have those installed.
 
 Then, run:

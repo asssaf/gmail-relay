@@ -13,7 +13,7 @@ import sys
 
 try:
     import argparse
-    parser = argparse.ArgumentParser(parents=[tools.argparser])
+    parser = argparse.ArgumentParser(parents=[tools.argparser]) # this adds flags from oauth2client tools
     parser.add_argument("--auth", help="Perform auth and exit", action="store_true")
     parser.add_argument("--config", help="Directory to read and write config files from",
                         type=str, default=os.path.join(os.path.expanduser('~'), ".gmail-relay"))
